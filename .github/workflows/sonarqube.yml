@@ -1,0 +1,47 @@
+name: SonarQube Analysis (.NET Web API)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Test with Coverage
+      run: |
+        dotnet test SampleApi.Tests \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./TestResults
+
+    - name: SonarQube Scan
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
+        dotnet-sonarscanner begin \
+          /k:"SampleDotNetWebAPI" \
+          /d:sonar.host.url="http://your-sonarqube-url" \
+          /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+          /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
+
+        dotnet build SampleApi/SampleApi.csproj
+
+        dotnet-sonarscanner end \
+          /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
