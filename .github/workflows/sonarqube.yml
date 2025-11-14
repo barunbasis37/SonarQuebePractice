@@ -37,7 +37,7 @@ jobs:
         dotnet tool install --global dotnet-sonarscanner
         dotnet-sonarscanner begin \
           /k:"SampleDotNetWebAPI" \
-          /d:sonar.host.url="http://your-sonarqube-url" \
+          /d:sonar.host.url="http://54.167.45.206:9000/" \
           /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
           /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
 
